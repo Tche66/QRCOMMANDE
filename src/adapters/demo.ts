@@ -259,4 +259,21 @@ export class DemoAdapter implements Api {
     const idx = list.findIndex((c) => c.id === catId);
     if (idx >= 0) list.splice(idx, 1);
   }
+
+  async updateEstablishment(
+    estId: string,
+    data: Partial<Pick<Establishment, 'name' | 'receptionPhone' | 'managerPhone' | 'status'>>,
+  ): Promise<void> {
+    const est = establishments[estId];
+    if (!est) throw new Error('Etablissement introuvable');
+    Object.assign(est, data);
+  }
+
+  async listEstablishments(): Promise<Establishment[]> {
+    return Object.values(establishments);
+  }
+
+  async getDayOrders(estId: string): Promise<Order[]> {
+    return [...(orders[estId] ?? [])].reverse();
+  }
 }

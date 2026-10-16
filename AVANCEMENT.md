@@ -80,15 +80,20 @@ Plan technique : `C:\Users\hp\Documents\HOTEL QR\PLAN_CLAUDE_CODE_Commande_QR (1
 - [x] Build : ~178 Ko gzip (dashboard charge en lazy import)
 - [x] 55 tests F-J1 toujours verts
 
-## Prochaine etape : F-J5 (Espace gerant + super admin)
+### F-J5 : Espace gerant + super admin (FAIT)
+- [x] Route /:slug/admin avec login gerant
+- [x] MenuEditor : categories editables, articles avec toggle dispo, prix inline, ajout/suppression
+- [x] ItemRow : nom/prix editables au tap, toggle dispo/masque en 2 taps
+- [x] CategorySection : nom editable, ajout article, suppression avec confirmation
+- [x] SettingsPage : numeros reception/gerant editables
+- [x] DayHistory : stats du jour (commandes, livrees, total FCFA), liste commandes
+- [x] Route /super-admin avec login super admin
+- [x] EstablishmentList : liste, statut, bouton suspendre/reactiver
+- [x] api.ts : ajout updateEstablishment, listEstablishments, getDayOrders
+- [x] Build OK, tous modules en lazy import
+- [x] 55 tests toujours verts
 
-## Etapes futures (apres F-J4)
-
-### F-J5 : Espace gerant + super admin
-- Modifier prix, disponibilite, articles, categories
-- Numeros de reception/alerte
-- Liste etablissements pour super admin
-- Tests de droits gerant
+## Prochaine etape : F-J6 (Deploiement pilote)
 
 ### F-J6 : Deploiement pilote
 - Firebase Hosting

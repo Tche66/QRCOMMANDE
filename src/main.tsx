@@ -3,15 +3,24 @@ import { getApi } from './api';
 import { ClientApp } from './client/ClientApp';
 import './client/styles.css';
 import './reception/styles.css';
+import './manager/styles.css';
+import './superadmin/styles.css';
 
 interface ClientRoute { type: 'client'; slug: string; token: string }
 interface ReceptionRoute { type: 'reception'; slug: string }
+interface ManagerRoute { type: 'manager'; slug: string }
+interface SuperAdminRoute { type: 'superadmin' }
 interface HomeRoute { type: 'home' }
 
-type Route = ClientRoute | ReceptionRoute | HomeRoute;
+type Route = ClientRoute | ReceptionRoute | ManagerRoute | SuperAdminRoute | HomeRoute;
 
 function parseRoute(): Route {
   const path = window.location.pathname;
+
+  if (path.match(/^\/super-admin\/?$/)) return { type: 'superadmin' };
+
+  const managerMatch = path.match(/^\/([^/]+)\/admin\/?$/);
+  if (managerMatch) return { type: 'manager', slug: managerMatch[1] };
 
   const receptionMatch = path.match(/^\/([^/]+)\/reception\/?$/);
   if (receptionMatch) return { type: 'reception', slug: receptionMatch[1] };
@@ -45,6 +54,18 @@ async function main() {
   }
 
   const api = await getApi();
+
+  if (route.type === 'superadmin') {
+    const { SuperAdminApp } = await import('./superadmin/SuperAdminApp');
+    render(<SuperAdminApp api={api} />, app);
+    return;
+  }
+
+  if (route.type === 'manager') {
+    const { ManagerApp } = await import('./manager/ManagerApp');
+    render(<ManagerApp api={api} slug={route.slug} />, app);
+    return;
+  }
 
   if (route.type === 'reception') {
     const { ReceptionApp } = await import('./reception/ReceptionApp');

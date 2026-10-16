@@ -248,4 +248,59 @@ export class FirebaseAdapter implements Api {
   async deleteCategory(estId: string, catId: string): Promise<void> {
     await deleteDoc(doc(this.db, `establishments/${estId}/categories`, catId));
   }
+
+  async updateEstablishment(
+    estId: string,
+    data: Partial<{ name: string; receptionPhone: string; managerPhone: string; status: string }>,
+  ): Promise<void> {
+    await updateDoc(doc(this.db, 'establishments', estId), data);
+  }
+
+  async listEstablishments(): Promise<Establishment[]> {
+    const snap = await getDocs(collection(this.db, 'establishments'));
+    return snap.docs.map((d) => {
+      const data = d.data();
+      return {
+        id: d.id,
+        slug: data.slug,
+        name: data.name,
+        city: data.city,
+        type: data.type,
+        theme: data.theme,
+        receptionPhone: data.receptionPhone,
+        managerPhone: data.managerPhone,
+        status: data.status,
+        createdAt: toDate(data.createdAt),
+      };
+    });
+  }
+
+  async getDayOrders(estId: string): Promise<Order[]> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const q = query(
+      collection(this.db, `establishments/${estId}/orders`),
+      where('createdAt', '>=', Timestamp.fromDate(today)),
+      orderBy('createdAt', 'desc'),
+      limit(200),
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => {
+      const data = d.data();
+      return {
+        id: d.id,
+        clientUid: data.clientUid,
+        roomNumber: data.roomNumber,
+        lines: data.lines,
+        note: data.note,
+        totalFcfa: data.totalFcfa,
+        status: data.status,
+        source: data.source,
+        createdAt: toDate(data.createdAt),
+        seenAt: data.seenAt ? toDate(data.seenAt) : undefined,
+        preparingAt: data.preparingAt ? toDate(data.preparingAt) : undefined,
+        deliveredAt: data.deliveredAt ? toDate(data.deliveredAt) : undefined,
+      };
+    });
+  }
 }

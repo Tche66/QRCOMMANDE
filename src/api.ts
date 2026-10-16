@@ -53,6 +53,15 @@ export interface Api {
     data: Omit<Category, 'id'>,
   ): Promise<Category>;
   deleteCategory(estId: string, catId: string): Promise<void>;
+
+  updateEstablishment(
+    estId: string,
+    data: Partial<Pick<Establishment, 'name' | 'receptionPhone' | 'managerPhone' | 'status'>>,
+  ): Promise<void>;
+
+  listEstablishments(): Promise<Establishment[]>;
+
+  getDayOrders(estId: string): Promise<Order[]>;
 }
 
 let currentApi: Api | null = null;
