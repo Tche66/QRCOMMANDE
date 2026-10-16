@@ -1,10 +1,17 @@
 import { initializeApp, type FirebaseApp } from 'firebase/app';
-import { getFirestore, connectFirestoreEmulator, type Firestore } from 'firebase/firestore';
+import {
+  initializeFirestore,
+  connectFirestoreEmulator,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+  type Firestore,
+} from 'firebase/firestore';
 import { getAuth, connectAuthEmulator, type Auth } from 'firebase/auth';
 
 let app: FirebaseApp | null = null;
 let db: Firestore | null = null;
 let auth: Auth | null = null;
+let emulatorsConnected = false;
 
 export function getFirebaseApp(): FirebaseApp {
   if (app) return app;
@@ -25,10 +32,21 @@ export function getFirebaseApp(): FirebaseApp {
 export function getDb(): Firestore {
   if (db) return db;
 
-  db = getFirestore(getFirebaseApp());
+  const useEmulators = import.meta.env.VITE_USE_EMULATORS === 'true';
 
-  if (import.meta.env.VITE_USE_EMULATORS === 'true') {
+  if (useEmulators) {
+    db = initializeFirestore(getFirebaseApp(), {});
+  } else {
+    db = initializeFirestore(getFirebaseApp(), {
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager(),
+      }),
+    });
+  }
+
+  if (useEmulators && !emulatorsConnected) {
     connectFirestoreEmulator(db, 'localhost', 8080);
+    emulatorsConnected = true;
   }
 
   return db;

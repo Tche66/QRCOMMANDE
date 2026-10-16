@@ -51,46 +51,44 @@ Plan technique : `C:\Users\hp\Documents\HOTEL QR\PLAN_CLAUDE_CODE_Commande_QR (1
 - [x] Teste : 20 chambres creees en ~20s, PDF genere, list OK, suspend OK
 - [x] 55 tests toujours verts
 
-## Prochaine etape : F-J3 (PWA client)
+### F-J3 : PWA Client (FAIT)
+- [x] Preact + vite-plugin-pwa installes
+- [x] vite.config.ts avec Preact preset + PWA (service worker, manifest)
+- [x] firebase.ts avec persistentLocalCache (menu offline)
+- [x] Router minimaliste (/:slug/r/:token)
+- [x] ClientApp.tsx : orchestration (resolve token, load menu, auth anonyme, commande)
+- [x] MenuPage.tsx : categories, articles, panier flottant, note libre, total FCFA
+- [x] OrderStatus.tsx : suivi temps reel (hasPendingWrites), etats new/seen/preparing/delivered
+- [x] SmsButton.tsx : bouton secours SMS + WhatsApp (iOS/Android)
+- [x] Header.tsx : nom etablissement + chambre + couleur theme
+- [x] styles.css : mobile-first, touch-friendly, police systeme
+- [x] auth.ts : connexion anonyme Firebase
+- [x] order-helpers.ts : generateOrderId, formatFcfa, buildSmsUrl, buildWhatsAppUrl
+- [x] Build : 174 Ko gzip (largement sous 500 Ko)
+- [x] 55 tests F-J1 toujours verts
+
+## Prochaine etape : F-J4 (Tableau de bord reception)
 
 ### Objectif
-Construire la PWA client : le QR ouvre le menu, le client commande depuis son telephone, meme hors ligne.
+Construire le tableau de bord que la reception utilise pour recevoir et traiter les commandes.
 
-### Ce qu'il faut faire (du plan technique F-J3)
-1. Route `/:slug/r/:token` : le QR ouvre directement le menu avec la chambre identifiee
-2. Connexion anonyme Firebase automatique au chargement
-3. Menu par categories avec prix FCFA, mention "indisponible"
-4. Panier : quantites, note libre, total
-5. Envoi de commande : l'ID du document = UUID genere sur le telephone (idempotence)
-6. Cache persistant Firestore (`persistentLocalCache`)
-7. Etat selon `hasPendingWrites` : "non envoyee" / "recue" / "en preparation" / "livree"
-8. Bouton de secours SMS avec numero reception (tester `?body=` et `&body=` pour iOS)
-9. Identite visuelle (nom, couleur) lue depuis l'etablissement
-10. Premiere page < 500 Ko
-11. Service worker via vite-plugin-pwa
+### Ce qu'il faut faire (du plan technique F-J4)
+1. Connexion par compte reception (email/password)
+2. Liste commandes du jour en temps reel (onSnapshot, limit 100)
+3. Sonnerie forte repetee toutes les 3s tant qu'une commande est "new"
+4. Bouton "Activer le son" (geste utilisateur requis par les navigateurs)
+5. 3 boutons de statut : Recu, En preparation, Livre
+6. Indicateur "Connecte / Hors ligne"
+7. Wake Lock API (ecran toujours allume)
+8. Recalcul du total avec les prix actuels du menu (alerte si ecart)
 
-### Criteres d'acceptation F-J3
-- Commande en mode avion puis reseau retabli : arrive une seule fois
-- La meme commande envoyee deux fois ne cree qu'un document
-- Le statut change en direct
-- Page < 500 Ko au premier chargement
+### Criteres d'acceptation F-J4
+- Commande apparait en < 3 secondes
+- Sonnerie ne s'arrete qu'au passage a "seen"
+- Si onSnapshot tombe, l'interrogation prend le relais
+- Un receptionniste d'un autre etablissement ne voit pas ces commandes
 
-### Dependances a installer pour F-J3
-- `preact` (UI legere)
-- `@preact/preset-vite`
-- `vite-plugin-pwa` + `workbox-*`
-- `idb-keyval` (optionnel, le cache Firestore suffit peut-etre)
-
-## Etapes futures (apres F-J3)
-
-### F-J4 : Tableau de bord reception
-- Connexion compte reception
-- Liste commandes en temps reel (onSnapshot)
-- Sonnerie repetee tant que commande est "new"
-- 3 boutons de statut
-- Indicateur connecte/hors ligne
-- Wake Lock
-- Recalcul total avec prix actuels (alerte ecart)
+## Etapes futures (apres F-J4)
 
 ### F-J5 : Espace gerant + super admin
 - Modifier prix, disponibilite, articles, categories
