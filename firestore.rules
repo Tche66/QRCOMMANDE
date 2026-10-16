@@ -1,0 +1,80 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+
+    function signedIn()   { return request.auth != null; }
+    function isSuper()    { return signedIn() && request.auth.token.role == 'super_admin'; }
+    function inEst(e)     { return signedIn() && request.auth.token.estId == e; }
+    function isManager(e) { return inEst(e) && request.auth.token.role == 'manager'; }
+    function isStaff(e)   { return inEst(e) && request.auth.token.role in ['manager', 'reception']; }
+
+    match /slugs/{slug} {
+      allow get: if true;
+      allow list: if false;
+      allow write: if isSuper();
+    }
+
+    match /roomTokens/{t} {
+      allow get: if true;
+      allow list: if false;
+      allow write: if isSuper();
+    }
+
+    match /establishments/{e} {
+      allow get: if true;
+      allow list: if isSuper();
+      allow create, delete: if isSuper();
+      allow update: if isSuper() || (isManager(e) &&
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['name', 'theme', 'receptionPhone', 'managerPhone']));
+
+      match /categories/{id} {
+        allow read: if true;
+        allow write: if isManager(e) || isSuper();
+      }
+
+      match /items/{id} {
+        allow read: if true;
+        allow write: if isManager(e) || isSuper();
+      }
+
+      match /rooms/{id} {
+        allow read: if isStaff(e) || isSuper();
+        allow write: if isSuper();
+      }
+
+      match /orders/{orderId} {
+        allow create: if signedIn()
+          && get(/databases/$(db)/documents/establishments/$(e)).data.status != 'suspended'
+          && request.resource.data.clientUid == request.auth.uid
+          && request.resource.data.status == 'new'
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.lines.size() >= 1
+          && request.resource.data.lines.size() <= 30
+          && request.resource.data.totalFcfa is int
+          && request.resource.data.totalFcfa >= 0
+          && request.resource.data.totalFcfa <= 500000;
+        allow get: if isStaff(e) || isSuper()
+          || (signedIn() && resource.data.clientUid == request.auth.uid);
+        allow list: if isStaff(e) || isSuper();
+        allow update: if
+          (isStaff(e) && request.resource.data.diff(resource.data)
+            .affectedKeys().hasOnly(['status', 'seenAt', 'preparingAt', 'deliveredAt']))
+          || (signedIn()
+            && resource.data.clientUid == request.auth.uid
+            && request.resource.data.clientUid == request.auth.uid
+            && request.resource.data.status == 'new'
+            && resource.data.status == 'new');
+        allow delete: if false;
+      }
+    }
+
+    match /subscriptions/{id} {
+      allow read, write: if isSuper();
+    }
+
+    match /auditLog/{id} {
+      allow read, write: if isSuper();
+    }
+  }
+}
