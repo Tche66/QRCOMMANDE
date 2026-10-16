@@ -10,16 +10,24 @@
     "test:watch": "firebase emulators:exec --only firestore \"npx vitest\"",
     "test:quick": "vitest run",
     "emulators": "firebase emulators:start",
-    "seed": "npx tsx scripts/seed-demo.ts"
+    "seed": "npx tsx scripts/seed-demo.ts",
+    "admin:create": "npx tsx scripts/create-establishment.ts",
+    "admin:qr": "npx tsx scripts/generate-qr-pdf.ts",
+    "admin:list": "npx tsx scripts/list-establishments.ts",
+    "admin:suspend": "npx tsx scripts/suspend-establishment.ts"
   },
   "keywords": [],
   "author": "Doukoua TSA",
   "license": "ISC",
   "dependencies": {
-    "firebase": "^13.0.0"
+    "firebase": "^13.0.0",
+    "firebase-admin": "^14.5.0",
+    "pdfkit": "^0.20.2",
+    "qrcode": "^1.5.4"
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^6.0.0",
+    "@types/pdfkit": "^0.17.6",
     "@types/uuid": "^10.0.0",
     "firebase-tools": "^13.29.1",
     "tsx": "^4.23.15",

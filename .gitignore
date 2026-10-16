@@ -8,3 +8,5 @@ firestore-debug.log
 ui-debug.log
 firebase-export-*
 .firebase/
+service-account.json
+output/
