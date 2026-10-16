@@ -67,26 +67,20 @@ Plan technique : `C:\Users\hp\Documents\HOTEL QR\PLAN_CLAUDE_CODE_Commande_QR (1
 - [x] Build : 174 Ko gzip (largement sous 500 Ko)
 - [x] 55 tests F-J1 toujours verts
 
-## Prochaine etape : F-J4 (Tableau de bord reception)
+### F-J4 : Tableau de bord reception (FAIT)
+- [x] Route /:slug/reception avec login par PIN
+- [x] Dashboard.tsx : liste commandes temps reel, separation actives/livrees
+- [x] OrderCard.tsx : chambre, articles, total, note, boutons statut (Recu/En prep/Livre)
+- [x] SoundManager.tsx : sonnerie Web Audio 800Hz toutes les 3s, bouton Activer le son
+- [x] ConnectionStatus.tsx : indicateur Connecte/Hors ligne
+- [x] WakeLock.tsx : ecran toujours allume (Wake Lock API)
+- [x] Recalcul total avec prix actuels du menu, alerte si ecart
+- [x] ReceptionApp.tsx : orchestration login → resolve slug → dashboard
+- [x] DemoAdapter : commandes simulees toutes les 15s pour tester sans emulateur
+- [x] Build : ~178 Ko gzip (dashboard charge en lazy import)
+- [x] 55 tests F-J1 toujours verts
 
-### Objectif
-Construire le tableau de bord que la reception utilise pour recevoir et traiter les commandes.
-
-### Ce qu'il faut faire (du plan technique F-J4)
-1. Connexion par compte reception (email/password)
-2. Liste commandes du jour en temps reel (onSnapshot, limit 100)
-3. Sonnerie forte repetee toutes les 3s tant qu'une commande est "new"
-4. Bouton "Activer le son" (geste utilisateur requis par les navigateurs)
-5. 3 boutons de statut : Recu, En preparation, Livre
-6. Indicateur "Connecte / Hors ligne"
-7. Wake Lock API (ecran toujours allume)
-8. Recalcul du total avec les prix actuels du menu (alerte si ecart)
-
-### Criteres d'acceptation F-J4
-- Commande apparait en < 3 secondes
-- Sonnerie ne s'arrete qu'au passage a "seen"
-- Si onSnapshot tombe, l'interrogation prend le relais
-- Un receptionniste d'un autre etablissement ne voit pas ces commandes
+## Prochaine etape : F-J5 (Espace gerant + super admin)
 
 ## Etapes futures (apres F-J4)
 

@@ -149,11 +149,40 @@ export class DemoAdapter implements Api {
     estId: string,
     onNext: (orders: Order[]) => void,
   ): () => void {
-    const interval = setInterval(() => {
-      onNext(orders[estId] ?? []);
-    }, 3000);
-    onNext(orders[estId] ?? []);
-    return () => clearInterval(interval);
+    let demoCount = 0;
+    const estItems = items[estId] ?? [];
+    const roomNums = Object.values(roomTokens)
+      .filter((r) => r.estId === estId)
+      .map((r) => r.roomNumber);
+
+    const demoInterval = setInterval(() => {
+      if (!orders[estId]) orders[estId] = [];
+      if (estItems.length > 0 && roomNums.length > 0) {
+        demoCount++;
+        const pick = estItems[demoCount % estItems.length];
+        const room = roomNums[demoCount % roomNums.length];
+        orders[estId].push({
+          id: `demo-order-${Date.now()}`,
+          clientUid: 'demo-client',
+          roomNumber: room,
+          lines: [{ itemId: pick.id, name: pick.name, qty: 1 + (demoCount % 3), unitPriceFcfa: pick.priceFcfa }],
+          totalFcfa: pick.priceFcfa * (1 + (demoCount % 3)),
+          status: 'new',
+          source: 'app',
+          createdAt: new Date(),
+        });
+      }
+    }, 15000);
+
+    const pollInterval = setInterval(() => {
+      onNext([...(orders[estId] ?? [])].reverse());
+    }, 2000);
+    onNext([...(orders[estId] ?? [])].reverse());
+
+    return () => {
+      clearInterval(demoInterval);
+      clearInterval(pollInterval);
+    };
   }
 
   watchOrder(
